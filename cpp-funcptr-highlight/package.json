@@ -18,6 +18,12 @@
     "onLanguage:cpp"
   ],
   "contributes": {
+    "commands": [
+      {
+        "command": "cppFuncPtr.refresh",
+        "title": "C/C++ Function Pointer Highlight: Refresh"
+      }
+    ],
     "configuration": {
       "title": "C/C++ Function Pointer Highlight",
       "properties": {
@@ -60,3 +66,4 @@
     "typescript": "^5.4.5"
   }
 }
+

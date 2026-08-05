@@ -2,9 +2,13 @@ import * as vscode from 'vscode';
 import { CFunctionPointerTokensProvider, legend } from './semanticProvider';
 
 // 匹配 obj.func(...) / ptr->func(...)，成员名后紧跟 '('，中间允许空格
-// 用 [ \t] 而非 \s，避免跨行误匹配
-const CALL_RE_SOURCE = '(?:\.|->)[ \t]*([A-Za-z_][A-Za-z0-9_]*)[ \t]*\(';
+// 用字面正则（而非字符串构造 new RegExp），彻底避免字符串转义导致正则被破坏。
+const CALL_RE = /(?:\.|->)[ \t]*([A-Za-z_][A-Za-z0-9_]*)[ \t]*\(/g;
 const DEFAULT_COLOR = '#DCDCAA'; // Dark+ 主题函数金黄色
+
+function isTarget(langId: string): boolean {
+  return langId === 'c' || langId === 'cpp';
+}
 
 /**
  * 主方案：装饰器（Decoration）。
@@ -21,15 +25,23 @@ class FunctionPointerDecorator {
 
     this.disposables.push(
       vscode.window.onDidChangeActiveTextEditor(() => this.scheduleUpdate()),
+      vscode.window.onDidChangeVisibleTextEditors(() => this.scheduleUpdate()),
       vscode.workspace.onDidChangeTextDocument((e) => {
-        const ed = vscode.window.activeTextEditor;
-        if (ed && e.document === ed.document) this.scheduleUpdate();
+        if (isTarget(e.document.languageId) &&
+            vscode.window.visibleTextEditors.some((ed) => ed.document === e.document)) {
+          this.scheduleUpdate();
+        }
       }),
       vscode.workspace.onDidChangeConfiguration((e) => {
         if (e.affectsConfiguration('cppFuncPtr')) this.rebuild();
       })
     );
     context.subscriptions.push(...this.disposables);
+
+    // 手动刷新命令，便于验证/调试
+    context.subscriptions.push(
+      vscode.commands.registerCommand('cppFuncPtr.refresh', () => this.updateAll())
+    );
 
     this.scheduleUpdate();
   }
@@ -49,21 +61,27 @@ class FunctionPointerDecorator {
 
   private scheduleUpdate(): void {
     if (this.updateTimer) clearTimeout(this.updateTimer);
-    this.updateTimer = setTimeout(() => this.update(), 200);
+    this.updateTimer = setTimeout(() => this.updateAll(), 200);
   }
 
-  private update(): void {
-    const editor = vscode.window.activeTextEditor;
-    if (!editor || (editor.document.languageId !== 'c' && editor.document.languageId !== 'cpp')) {
+  private updateAll(): void {
+    for (const editor of vscode.window.visibleTextEditors) {
+      this.updateEditor(editor);
+    }
+  }
+
+  private updateEditor(editor: vscode.TextEditor): void {
+    if (!isTarget(editor.document.languageId)) {
+      editor.setDecorations(this.decoration, []);
       return;
     }
     const document = editor.document;
     const text = document.getText();
     const codeMask = buildCodeMask(text); // 1=代码区, 0=注释/字符串
     const ranges: vscode.Range[] = [];
-    const re = new RegExp(CALL_RE_SOURCE, 'g');
+    CALL_RE.lastIndex = 0;
     let m: RegExpExecArray | null;
-    while ((m = re.exec(text)) !== null) {
+    while ((m = CALL_RE.exec(text)) !== null) {
       const name = m[1];
       const startOffset = m.index + m[0].indexOf(name);
       if (codeMask[startOffset] === 1) {
@@ -73,6 +91,8 @@ class FunctionPointerDecorator {
       }
     }
     editor.setDecorations(this.decoration, ranges);
+    // 诊断日志：查看 输出 -> 扩展主机 可确认插件是否工作及匹配数
+    console.log(`[cpp-funcptr-highlight] ${document.uri.fsPath}: matched ${ranges.length} call(s)`);
   }
 }
 
@@ -140,4 +160,3 @@ export function activate(context: vscode.ExtensionContext): void {
 export function deactivate(): void {
   // decoration 等已通过 context.subscriptions 自动 dispose
 }
-
