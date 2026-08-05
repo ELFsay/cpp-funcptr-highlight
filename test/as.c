@@ -1,13 +1,20 @@
-#include"pmsm_foc.h"
+#include"as.h"
 typedef struct
 {
     void *context;
-    void (*control_read)(void *context, float *sample);
+
+} aa;
+
+typedef struct
+{
+    void *context;
+    aa (*control_read)(void *context, float *sample);
 
     void (*pwm_enable)(void *context, bool enabled);
-} ecsa_axis_port_t;
+} bb;
+
 int a()
 {
-    ecsa_axis_port_t s;
+    bb s;
     s.pwm_enable(&s, M_PI_F);
 }
