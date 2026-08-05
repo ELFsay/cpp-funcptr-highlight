@@ -26,7 +26,7 @@ npm run compile      # tsc -> out/extension.js
 npx @vscode/vsce package   # 生成 .vsix 安装包
 ```
 
-安装：`code --install-extension cpp-funcptr-highlight-1.3.0.vsix` 或在 VS Code 中 `扩展 -> ... -> 从 VSIX 安装...`。
+安装：`code --install-extension cpp-funcptr-highlight-1.3.1.vsix` 或在 VS Code 中 `扩展 -> ... -> 从 VSIX 安装...`。
 
 ## 设置项
 
@@ -45,6 +45,7 @@ npx @vscode/vsce package   # 生成 .vsix 安装包
 ## ⚠️ 一个必须说明的语法局限
 
 开启 `highlightStandaloneFnPtr` 后，__普通函数调用也会被命中__（如 `void fn(...)` 的 `fn`）。因为纯文本里 `fn(` 和函数指针 `fp(` 无法区分——要区分必须拿到符号表（cpptools 语义），而那会与 IntelliSense 互斥，不可行。__当 `standaloneColor` 保持默认金色 `#DCDCAA` 时无任何视觉影响__（普通函数本来就是金色）；若你把 `standaloneColor` 设成别的颜色，普通函数调用也会跟着变色。请知悉这一点再决定是否开启。
+
 
 
 

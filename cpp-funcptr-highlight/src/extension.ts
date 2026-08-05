@@ -4,7 +4,7 @@ import { CFunctionPointerTokensProvider, legend } from './semanticProvider';
 // 成员函数指针调用：obj.func(...) / ptr->func(...)
 const CALL_RE = /(?:\.|->)[ \t]*([A-Za-z_][A-Za-z0-9_]*)[ \t]*\(/g;
 // 独立函数指针变量调用点：fp(...)（前面不是标识符字符/点/横线，避免误匹配成员调用）
-const STANDALONE_CALL_RE = /(?<![A-Za-z0-9_.\-])([A-Za-z_][A-Za-z0-9_]*)[ \t]*\((?![ \t]*\*)/g;
+const STANDALONE_CALL_RE = /(?<![A-Za-z0-9_>.\-])([A-Za-z_][A-Za-z0-9_]*)[ \t]*\((?![ \t]*\*)/g;
 // 函数指针声明 / 解引用调用：(*名字)(...)
 // 用固定结构 (*name)( 匹配，与返回类型无关（void 或自定义类型都能识别），也不会误标返回类型
 const STANDALONE_DECL_RE = /(?<=\(\s*\*\s*)([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\(/g;
@@ -187,4 +187,5 @@ export function activate(context: vscode.ExtensionContext): void {
 
 export function deactivate(): void {
 }
+
 
