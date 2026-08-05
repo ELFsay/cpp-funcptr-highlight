@@ -1,7 +1,8 @@
-# C/C++ Function Pointer Highlight
-本插件完全使用cline+deepseek v4 flash开发
+# C/C++ Struct & Function Pointer Highlight
 
 解决 VS Code + 微软 C/C++ 扩展下，**结构体函数指针调用**无法显示为函数金黄色（`#DCDCAA`）而被渲染成普通变量色的问题。
+
+本插件完全使用cline+deepseek v4 flash开发,源码已开源在 [GitHub 仓库](https://github.com/ELFsay/cpp-funcptr-highlight.git)。
 
 满足：
 - `obj.func(...)` / `ptr->func(...)` → `func` 显示为金黄色（函数色）。
