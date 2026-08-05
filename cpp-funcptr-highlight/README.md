@@ -18,14 +18,6 @@ VS Code 对**同一文档只采用一个 Semantic Tokens Provider**（语言特�
 
 > 代码中仍保留了 `DocumentSemanticTokensProvider` 实现（`src/semanticProvider.ts`），默认关闭（`cppFuncPtr.enableSemanticTokens=false`），仅供实验。
 
-## 构建与打包
-
-```powershell
-cd c:\Users\shengjiaxuan\Desktop\cvscode\cpp-funcptr-highlight
-npm install          # 下载 typescript / @vscode/vsce 等依赖
-npm run compile      # tsc -> out/extension.js
-npx @vscode/vsce package   # 生成 .vsix 安装包
-```
 
 安装：`code --install-extension cpp-funcptr-highlight-1.3.1.vsix` 或在 VS Code 中 `扩展 -> ... -> 从 VSIX 安装...`。
 

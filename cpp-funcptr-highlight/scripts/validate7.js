@@ -1,5 +1,5 @@
 const fs = require('fs');
-const text = fs.readFileSync('c:/Users/shengjiaxuan/Desktop/cvscode/test/as.c', 'utf8');
+const text = fs.readFileSync(require('path').join(__dirname, '..', '..', 'test', 'as.c'), 'utf8');
 const MEMBER_RE = /(?:\.|->)[ \t]*([A-Za-z_][A-Za-z0-9_]*)[ \t]*\(/g;
 const CALL_RE = /(?<![A-Za-z0-9_>.\-])([A-Za-z_][A-Za-z0-9_]*)[ \t]*\((?![ \t]*\*)/g;
 const DECL_RE = /(?<=\(\s*\*\s*)([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\(/g;
@@ -11,3 +11,4 @@ function collect(re, kind, useFilter){ re.lastIndex=0; let m; const byLine={}; w
 const all={}; for(const o of [collect(MEMBER_RE,'成员',false), collect(DECL_RE,'声明',false), collect(CALL_RE,'调用',true)]) for(const k in o) (all[k]=all[k]||[]).push(...o[k]);
 const lines=text.split('\n');
 for(let i=0;i<lines.length;i++){ const hit=all[i+1]; if(hit) console.log('L'+(i+1), lines[i].trim().padEnd(56), '=>', hit.join('  ')); }
+

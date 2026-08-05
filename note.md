@@ -51,65 +51,7 @@
 * **位置定位与计算**：精准获取匹配到的成员函数名在文档中的起始 Line、Character 与 Length。
 * **Semantic Token 抛出**：构建 `vscode.SemanticTokensBuilder`，将匹配到的 Token 类型指定为 `function`（索引为 0）。
 
-### 3. 核心代码参考 (`src/extension.ts`)
-
-```typescript
-import * as vscode from 'vscode';
-
-const tokenTypes = ['function'];
-const tokenModifiers = ['callable'];
-const legend = new vscode.SemanticTokensLegend(tokenTypes, tokenModifiers);
-
-class CFunctionPointerTokensProvider implements vscode.DocumentSemanticTokensProvider {
-    async provideDocumentSemanticTokens(
-        document: vscode.TextDocument,
-        token: vscode.CancellationToken
-    ): Promise<vscode.SemanticTokens> {
-        const builder = new vscode.SemanticTokensBuilder(legend);
-        const text = document.getText();
-
-        // 正则匹配：结构体通过 . 或 -> 调用且紧跟 ( 的成员名
-        const regex = /(?:\.|->)\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g;
-        let match: RegExpExecArray | null;
-
-        while ((match = regex.exec(text)) !== null) {
-            const memberName = match[1];
-            const startOffset = match.index + match[0].indexOf(memberName);
-            const startPos = document.positionAt(startOffset);
-
-            builder.push(
-                startPos.line,
-                startPos.character,
-                memberName.length,
-                0, // TokenType: 'function'
-                0  // Modifiers
-            );
-        }
-
-        return builder.build();
-    }
-}
-
-export function activate(context: vscode.ExtensionContext) {
-    const selector: vscode.DocumentSelector = [
-        { language: 'c', scheme: 'file' },
-        { language: 'cpp', scheme: 'file' }
-    ];
-
-    context.subscriptions.push(
-        vscode.languages.registerDocumentSemanticTokensProvider(
-            selector,
-            new CFunctionPointerTokensProvider(),
-            legend
-        )
-    );
-}
-
-export function deactivate() {}
-
-```
-
-### 4. 交付物要求
+### 3. 交付物要求
 
 1. **完整插件源码**：包含正确的 `package.json`（配置 `contributes.semanticTokenScopes` 等）、`src/extension.ts`、`tsconfig.json`。
 2. **编译并打包的安装包**：使用 `@vscode/vsce` 打包生成的 `.vsix` 文件，方便通过 VS Code `Install from VSIX...` 直接安装使用。
